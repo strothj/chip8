@@ -1,0 +1,14 @@
+{
+  "name": "chip8",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "strothj <jason@jasons.io>",
+  "license": "MIT",
+  "scripts": {
+    "start": "tsc -b --watch",
+    "build": "tsc -b"
+  },
+  "devDependencies": {
+    "typescript": "^3.8.3"
+  }
+}
