@@ -5,10 +5,12 @@
   "author": "strothj <jason@jasons.io>",
   "license": "MIT",
   "scripts": {
-    "start": "tsc -b --watch",
-    "build": "tsc -b"
+    "start": "yarn clean && tsc -b --watch",
+    "build": "yarn clean && tsc -b",
+    "clean": "rimraf dist/js"
   },
   "devDependencies": {
+    "rimraf": "^3.0.2",
     "typescript": "^3.8.3"
   }
 }
