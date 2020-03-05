@@ -82,16 +82,24 @@ export class Processor {
 		switch (nibble0) {
 			case 0x0: {
 				switch (byte1) {
+					case 0xe0: {
+						for (
+							let i = 0;
+							i < display.width * display.height;
+							i += 1
+						) {
+							display.set(i, 0);
+						}
+						break;
+					}
+
 					case 0xee: {
 						memory.setRegisterProgramCounter(memory.stackPop());
 						break;
 					}
 
 					default: {
-						console.warn(
-							"0x range unsupported instruction:",
-							this.createUnsupportedInstructionError(),
-						);
+						throw this.createUnsupportedInstructionError();
 					}
 				}
 				break;
@@ -188,10 +196,10 @@ export class Processor {
 
 					// Same potential issue as 0xE.
 					case 0x6: {
-						// console.warn(
-						// 	"Use of potentially buggy instruction:",
-						// 	this.formatInstruction(instruction),
-						// );
+						console.warn(
+							"Use of potentially buggy instruction:",
+							this.formatInstruction(instruction),
+						);
 						const vx = memory.getRegisterV(nibble2);
 						memory.setRegisterV(0xf, (vx & 1) > 0 ? 1 : 0);
 						memory.setRegisterV(nibble2, vx >>> 1);
@@ -203,10 +211,10 @@ export class Processor {
 					// setting vx to shift of vy. Other sources say to set vx to
 					// shift of vx.
 					case 0xe: {
-						// console.warn(
-						// 	"Use of potentially buggy instruction:",
-						// 	this.formatInstruction(instruction),
-						// );
+						console.warn(
+							"Use of potentially buggy instruction:",
+							this.formatInstruction(instruction),
+						);
 						const vx = memory.getRegisterV(nibble2);
 						memory.setRegisterV(0xf, (vx & 0x80) > 0 ? 1 : 0);
 						memory.setRegisterV(nibble2, vx << 1);
@@ -273,6 +281,17 @@ export class Processor {
 
 			case 0xe: {
 				switch (byte1) {
+					case 0x9e: {
+						if (
+							this.keyboard.isKeyPressed(
+								this.memory.getRegisterV(nibble1),
+							)
+						) {
+							memory.incrementRegisterProgramCounter(2);
+						}
+						break;
+					}
+
 					case 0xa1: {
 						if (
 							!this.keyboard.isKeyPressed(
