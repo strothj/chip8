@@ -1,12 +1,14 @@
 import { Memory } from "./Memory.js";
 import { Display } from "./Display.js";
 import { Speaker } from "./Speaker.js";
+import { Keyboard } from "./Keyboard.js";
 
 export class Processor {
 	constructor(
 		private readonly memory: Memory,
 		private readonly display: Display,
 		private readonly speaker: Speaker,
+		private readonly keyboard: Keyboard,
 		private readonly onDebugEmit?: (data: Record<string, string>) => void,
 	) {}
 
@@ -204,8 +206,13 @@ export class Processor {
 			case 0xe: {
 				switch (byte1) {
 					case 0xa1: {
-						// TODO: Implement keyboard.
-						memory.incrementRegisterProgramCounter(2);
+						if (
+							!this.keyboard.isKeyPressed(
+								this.memory.getRegisterV(nibble1),
+							)
+						) {
+							memory.incrementRegisterProgramCounter(2);
+						}
 						break;
 					}
 

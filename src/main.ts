@@ -3,6 +3,7 @@ import { Display } from "./Display.js";
 import { Memory } from "./Memory.js";
 import { Processor } from "./Processor.js";
 import { Speaker } from "./Speaker.js";
+import { Keyboard } from "./Keyboard.js";
 
 const DISPLAY_WIDTH = 64;
 const DISPLAY_HEIGHT = 32;
@@ -29,7 +30,14 @@ async function main() {
 			.map(([key, value]) => `<dt>${key}</dt><dd>${value}</dd>`)
 			.join("\n");
 	};
-	const processor = new Processor(memory, display, speaker, renderDebugInfo);
+	const keyboard = new Keyboard();
+	const processor = new Processor(
+		memory,
+		display,
+		speaker,
+		keyboard,
+		renderDebugInfo,
+	);
 
 	const clock = new Clock(TICK_INTERVAL_MS);
 	let clockSubscription: Subscription | null = null;
