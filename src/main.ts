@@ -19,7 +19,9 @@ async function main() {
 	}
 	console.log("Entering development mode.");
 
-	const response = await fetch("./roms/Pong (1 player).ch8");
+	const response = await fetch(
+		"./roms/Particle Demo [zeroZshadow, 2008].ch8",
+	);
 	const responseBody = await response.blob();
 	const rom = new Uint8Array(await responseBody.arrayBuffer());
 	const memory = new Memory(rom);

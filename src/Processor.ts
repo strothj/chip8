@@ -1,9 +1,11 @@
-import { Memory } from "./Memory.js";
+import { Memory, Instruction } from "./Memory.js";
 import { Display } from "./Display.js";
 import { Speaker } from "./Speaker.js";
 import { Keyboard } from "./Keyboard.js";
 
 export class Processor {
+	private previousInstruction: Instruction | null = null;
+
 	constructor(
 		private readonly memory: Memory,
 		private readonly display: Display,
@@ -12,8 +14,33 @@ export class Processor {
 		private readonly onDebugEmit?: (data: Record<string, string>) => void,
 	) {}
 
+	private formatInstruction(instruction: Instruction | null) {
+		if (!instruction) {
+			return null;
+		}
+		return Object.entries(instruction).reduce(
+			(accumulator, [key, value]) => {
+				accumulator[key] = `0x ${value.toString(16)} (${value})`;
+				return accumulator;
+			},
+			{} as Record<string, string>,
+		);
+	}
+
 	private createUnsupportedInstructionError() {
-		return new Error(JSON.stringify(this.memory.getInstruction(), null, 2));
+		const instruction = this.memory.getInstruction();
+		const previousInstruction = this.previousInstruction;
+
+		const stringifiedInstruction = JSON.stringify(
+			{
+				previous: this.formatInstruction(previousInstruction),
+				instruction: this.formatInstruction(instruction),
+			},
+			null,
+			2,
+		);
+
+		return new Error(`Unsupported instruction: ${stringifiedInstruction}`);
 	}
 
 	performCycle() {
@@ -29,6 +56,7 @@ export class Processor {
 			memory.setRegisterSound(registerSoundValue - 1);
 		}
 
+		const instruction = memory.getInstruction();
 		const {
 			byte0,
 			byte1,
@@ -37,7 +65,7 @@ export class Processor {
 			nibble2,
 			nibble3,
 			address,
-		} = memory.getInstruction();
+		} = instruction;
 		if (this.onDebugEmit) {
 			this.onDebugEmit({
 				programCounter: memory.getRegisterProgramCounter().toString(16),
@@ -60,7 +88,10 @@ export class Processor {
 					}
 
 					default: {
-						throw this.createUnsupportedInstructionError();
+						console.warn(
+							"0x range unsupported instruction:",
+							this.createUnsupportedInstructionError(),
+						);
 					}
 				}
 				break;
@@ -86,6 +117,16 @@ export class Processor {
 
 			case 0x4: {
 				if (memory.getRegisterV(nibble1) !== byte1) {
+					memory.incrementRegisterProgramCounter(2);
+				}
+				break;
+			}
+
+			case 0x5: {
+				if (
+					memory.getRegisterV(nibble1) ===
+					memory.getRegisterV(nibble2)
+				) {
 					memory.incrementRegisterProgramCounter(2);
 				}
 				break;
@@ -142,6 +183,33 @@ export class Processor {
 								: 0,
 						);
 						memory.setRegisterV(nibble1, result);
+						break;
+					}
+
+					// Same potential issue as 0xE.
+					case 0x6: {
+						// console.warn(
+						// 	"Use of potentially buggy instruction:",
+						// 	this.formatInstruction(instruction),
+						// );
+						const vx = memory.getRegisterV(nibble2);
+						memory.setRegisterV(0xf, (vx & 1) > 0 ? 1 : 0);
+						memory.setRegisterV(nibble2, vx >>> 1);
+						break;
+					}
+
+					// There's conflicting information on this instruction.
+					// Per http://laurencescotford.co.uk/?p=266, this should be
+					// setting vx to shift of vy. Other sources say to set vx to
+					// shift of vx.
+					case 0xe: {
+						// console.warn(
+						// 	"Use of potentially buggy instruction:",
+						// 	this.formatInstruction(instruction),
+						// );
+						const vx = memory.getRegisterV(nibble2);
+						memory.setRegisterV(0xf, (vx & 0x80) > 0 ? 1 : 0);
+						memory.setRegisterV(nibble2, vx << 1);
 						break;
 					}
 
@@ -240,6 +308,14 @@ export class Processor {
 						break;
 					}
 
+					case 0x1e: {
+						memory.setRegisterI(
+							memory.getRegisterI() +
+								memory.getRegisterV(nibble1),
+						);
+						break;
+					}
+
 					case 0x29: {
 						memory.setRegisterI(
 							nibble1 * 5 + memory.getHexSpritesOffset(),
@@ -261,6 +337,17 @@ export class Processor {
 									4,
 							);
 							value = (value / 10) | 0;
+						}
+						break;
+					}
+
+					case 0x55: {
+						const ri = memory.getRegisterI();
+						for (let i = 0; i <= nibble1; i += 1) {
+							memory.setMemoryByte(
+								ri + i,
+								memory.getRegisterV(i),
+							);
 						}
 						break;
 					}
@@ -291,5 +378,6 @@ export class Processor {
 		}
 
 		memory.incrementRegisterProgramCounter(2);
+		this.previousInstruction = instruction;
 	}
 }

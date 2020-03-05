@@ -1,3 +1,14 @@
+export type Instruction = Record<
+	| "byte0"
+	| "byte1"
+	| "nibble0"
+	| "nibble1"
+	| "nibble2"
+	| "nibble3"
+	| "address",
+	number
+>;
+
 const MEMORY_LENGTH = 0x1_000;
 const MEMORY_OFFSET_ENTRY_POINT = 0x200;
 const MEMORY_OFFSET_HEX_SPRITES = 0x0;
@@ -170,7 +181,7 @@ export class Memory {
 		this.memory[offset] = value;
 	}
 
-	getInstruction() {
+	getInstruction(): Instruction {
 		const byte0 = this.getMemoryByte(this.registerProgramCounter);
 		const byte1 = this.getMemoryByte(this.registerProgramCounter + 1);
 		const nibble0 = (byte0 & 0xf0) >>> 4;
