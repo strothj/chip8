@@ -30,6 +30,12 @@ async function main() {
 		Constants.DisplayHeight,
 	);
 
+	const renderDebugInfo = (data: Record<string, string>) => {
+		document.querySelector("dl")!.innerHTML = Object.entries(data)
+			.map(([key, value]) => `<dt>${key}</dt><dd>${value}</dd>`)
+			.join("\n");
+	};
+
 	const clock = new Clock(Constants.TickRate, () => {
 		const registerDelayValue = memory.getRegisterDelay();
 		if (registerDelayValue > 0) {
@@ -53,7 +59,7 @@ async function main() {
 			nibble3,
 			address,
 		} = memory.getInstruction();
-		console.table({
+		renderDebugInfo({
 			programCounter: memory.getRegisterProgramCounter().toString(16),
 			byte0: byte0.toString(16),
 			byte1: byte1.toString(16),
@@ -317,7 +323,17 @@ async function main() {
 
 		memory.incrementRegisterProgramCounter(2);
 	});
-	clock.start();
+
+	let running = false;
+	document.querySelector("svg")!.addEventListener("click", () => {
+		if (running) {
+			clock.stop();
+			running = false;
+			return;
+		}
+		clock.start();
+		running = true;
+	});
 }
 
 window.addEventListener("DOMContentLoaded", () => {
