@@ -1,5 +1,6 @@
 import { Clock } from "./Clock.js";
 import { loadHexSprites } from "./loadHexSprites.js";
+import { Display } from "./Display.js";
 
 const enum Constants {
 	MemoryLength = 0x1000,
@@ -20,12 +21,6 @@ async function main() {
 	}
 	console.log("Entering development mode.");
 
-	const canvas = document.querySelector("canvas")!;
-	canvas.width = Constants.DisplayWidth;
-	canvas.height = Constants.DisplayHeight;
-	const canvasContext = canvas.getContext("2d")!;
-	canvasContext.imageSmoothingEnabled = true;
-
 	const response = await fetch("./roms/Pong (1 player).ch8");
 	const responseBody = await response.blob();
 	const rom = new Uint8Array(await responseBody.arrayBuffer());
@@ -40,8 +35,9 @@ async function main() {
 	const registersSoundTimers = new Uint8Array(1);
 	let programCounter: number = Constants.EntryPoint;
 	let stack: number[] = [];
-	const display = new Uint8Array(
-		Constants.DisplayWidth * Constants.DisplayHeight,
+	const display = new Display(
+		Constants.DisplayWidth,
+		Constants.DisplayHeight,
 	);
 
 	const clock = new Clock(Constants.TickRate, () => {
@@ -214,11 +210,11 @@ async function main() {
 						const pixel =
 							(spriteByte & (0x80 >>> xOffset)) >>> (7 - xOffset);
 						const pixelOffset = Constants.DisplayWidth * y + x;
-						const originalPixel = display[pixelOffset];
+						const originalPixel = display.get(pixelOffset);
 						if (pixel === originalPixel) {
 							hasCollision = true;
 						}
-						display[pixelOffset] = pixel ^ originalPixel;
+						display.set(pixelOffset, pixel ^ originalPixel);
 					}
 				}
 				registersV[0xf] = hasCollision ? 1 : 0;
@@ -300,19 +296,6 @@ async function main() {
 			default: {
 				console.error("Unsupported instruction:", nibble0.toString(16));
 				clock.stop();
-			}
-		}
-
-		for (let y = 0; y < Constants.DisplayHeight; y += 1) {
-			for (let x = 0; x < Constants.DisplayWidth; x += 1) {
-				canvasContext.fillStyle =
-					display[Constants.DisplayWidth * y + x] === 0
-						? "#fff"
-						: "#000";
-				canvasContext.strokeStyle = "transparent";
-				canvasContext.lineWidth = 1;
-				// canvasContext.lineJoin = ""
-				canvasContext.fillRect(x, y, 1, 1);
 			}
 		}
 

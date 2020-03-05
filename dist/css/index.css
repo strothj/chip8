@@ -19,7 +19,7 @@ body {
 	padding: 32px;
 }
 
-canvas {
+svg {
 	display: block;
 	width: 100%;
 	height: 100%;
