@@ -1,11 +1,12 @@
 import { Clock } from "./Clock.js";
+import { loadHexSprites } from "./loadHexSprites.js";
 
 const enum Constants {
 	MemoryLength = 0x1000,
 	EntryPoint = 0x200,
 	RegisterCount = 0x10,
 	Register16BitCount = 0x01,
-	TimersCount = 0x2,
+	DelayTimersCount = 0x2,
 	TickRate = 1000 / 60,
 	DisplayWidth = 64,
 	DisplayHeight = 32,
@@ -31,22 +32,30 @@ async function main() {
 
 	const memory = new Uint8Array(Constants.MemoryLength);
 	memory.set(rom, Constants.EntryPoint);
+	loadHexSprites(memory);
 
 	const registersV = new Uint8Array(Constants.RegisterCount);
 	const registersI = new Uint16Array(Constants.Register16BitCount);
-	// @ts-ignore
-	const registersTimers = new Uint8Array(Constants.TimersCount);
-	let programCounter = Constants.EntryPoint;
-	// @ts-ignore
-	let stackPointer: number = 0;
-	// @ts-ignore
+	const registersDelayTimers = new Uint8Array(Constants.DelayTimersCount);
+	const registersSoundTimers = new Uint8Array(1);
+	let programCounter: number = Constants.EntryPoint;
 	let stack: number[] = [];
-	// @ts-ignore
 	const display = new Uint8Array(
 		Constants.DisplayWidth * Constants.DisplayHeight,
 	);
 
 	const clock = new Clock(Constants.TickRate, () => {
+		if (registersDelayTimers[0] > 0) {
+			registersDelayTimers[0]--;
+		}
+		if (registersSoundTimers[0] > 0) {
+			console.log("Speaker!");
+			registersSoundTimers[0]--;
+			if (registersSoundTimers[0] === 0) {
+				console.log("Speaker stop.");
+			}
+		}
+
 		const instructionByte0 = memory[programCounter];
 		const instructionByte1 = memory[programCounter + 1];
 		const nibble0 = (instructionByte0 & 0xf0) >>> 4;
@@ -66,9 +75,104 @@ async function main() {
 		});
 
 		switch (nibble0) {
+			case 0x0: {
+				switch (instructionByte1) {
+					case 0xee: {
+						const poppedAddress = stack.pop();
+						if (poppedAddress === undefined) {
+							clock.stop();
+							console.error("Stack empty.");
+							break;
+						}
+						programCounter = poppedAddress;
+						break;
+					}
+
+					default: {
+						console.error(
+							"Unsupported instruction:",
+							nibble0.toString(16),
+						);
+						clock.stop();
+					}
+				}
+				break;
+			}
+
+			case 0x1: {
+				programCounter = address - 2;
+				break;
+			}
+
+			case 0x2: {
+				stack.push(programCounter);
+				programCounter = address - 2;
+				break;
+			}
+
+			case 0x3: {
+				if (registersV[nibble1] === instructionByte1) {
+					programCounter += 2;
+				}
+				break;
+			}
+
+			case 0x4: {
+				if (registersV[nibble1] !== instructionByte1) {
+					programCounter += 2;
+				}
+				break;
+			}
+
 			// 6xkk - LD Vx, byte
 			case 0x6: {
 				registersV[nibble1] = instructionByte1;
+				break;
+			}
+
+			case 0x7: {
+				registersV[nibble1] += instructionByte1;
+				break;
+			}
+
+			case 0x8: {
+				switch (nibble3) {
+					case 0x0: {
+						registersV[nibble1] = registersV[nibble2];
+						break;
+					}
+
+					case 0x2: {
+						registersV[nibble1] =
+							registersV[nibble1] & registersV[nibble2];
+						break;
+					}
+
+					case 0x4: {
+						const result =
+							registersV[nibble1] + registersV[nibble2];
+						registersV[nibble1] = result;
+						registersV[0xf] = result > 255 ? 1 : 0;
+						break;
+					}
+
+					case 0x5: {
+						const result =
+							registersV[nibble1] - registersV[nibble2];
+						registersV[0xf] =
+							registersV[nibble1] > registersV[nibble2] ? 1 : 0;
+						registersV[nibble1] = result;
+						break;
+					}
+
+					default: {
+						console.error(
+							"Unsupported instruction:",
+							nibble0.toString(16),
+						);
+						clock.stop();
+					}
+				}
 				break;
 			}
 
@@ -78,12 +182,18 @@ async function main() {
 				break;
 			}
 
+			case 0xc: {
+				// 0 - 255
+				const randomNumber = Math.floor(
+					Math.random() * Math.floor(256),
+				);
+				registersV[nibble1] = randomNumber & instructionByte1;
+				break;
+			}
+
 			// Dxyn - DRW Vx, Vy, nibble
 			case 0xd: {
-				console.group("Draw");
-				// @ts-ignore
 				const xPosition = registersV[nibble1];
-				// @ts-ignore
 				const yPosition = registersV[nibble2];
 				const spriteByteCount = nibble3;
 				let hasCollision = false;
@@ -93,8 +203,6 @@ async function main() {
 						y %= Constants.DisplayHeight;
 					}
 					const spriteByte = memory[registersI[0] + yOffset];
-					console.log(spriteByte.toString(2));
-					console.group("Line");
 					for (let xOffset = 0; xOffset < 8; xOffset += 1) {
 						let x = xPosition + xOffset;
 						if (x >= Constants.DisplayWidth) {
@@ -111,13 +219,81 @@ async function main() {
 							hasCollision = true;
 						}
 						display[pixelOffset] = pixel ^ originalPixel;
-						console.log(pixel.toString(2));
 					}
-					console.groupEnd();
 				}
 				registersV[0xf] = hasCollision ? 1 : 0;
-				console.log(display);
-				console.groupEnd();
+				break;
+			}
+
+			case 0xe: {
+				switch (instructionByte1) {
+					case 0xa1: {
+						// TODO: Implement keyboard.
+						programCounter += 2;
+						break;
+					}
+
+					default: {
+						console.error(
+							"Unsupported instruction:",
+							nibble0.toString(16),
+						);
+						clock.stop();
+					}
+				}
+				break;
+			}
+
+			case 0xf: {
+				switch (instructionByte1) {
+					case 0x07: {
+						registersV[nibble1] = registersDelayTimers[0];
+						break;
+					}
+
+					case 0x15: {
+						registersDelayTimers[0] = registersV[nibble1];
+						break;
+					}
+
+					case 0x18: {
+						registersSoundTimers[0] = registersV[nibble1];
+						break;
+					}
+
+					case 0x29: {
+						registersI[0] = nibble1 * 5;
+						break;
+					}
+
+					// Fx33 - LD B, Vx
+					case 0x33: {
+						let value = registersV[nibble1];
+						for (let i = 2; i >= 0; i -= 1) {
+							memory[registersI[0] + i] = value % 10;
+							value = (value / 10) | 0;
+							memory[registersI[0] + i] += value % 10 << 4;
+							value = (value / 10) | 0;
+						}
+						break;
+					}
+
+					// Fx65 - LD Vx, [I]
+					case 0x65: {
+						for (let i = 0; i <= nibble1; i += 1) {
+							registersV[0] = memory[registersI[0] + i];
+						}
+						break;
+					}
+
+					default: {
+						console.error(
+							"Unsupported instruction:",
+							nibble0.toString(16),
+						);
+						clock.stop();
+					}
+				}
 				break;
 			}
 
@@ -133,6 +309,9 @@ async function main() {
 					display[Constants.DisplayWidth * y + x] === 0
 						? "#fff"
 						: "#000";
+				canvasContext.strokeStyle = "transparent";
+				canvasContext.lineWidth = 1;
+				// canvasContext.lineJoin = ""
 				canvasContext.fillRect(x, y, 1, 1);
 			}
 		}
