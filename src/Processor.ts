@@ -1,10 +1,12 @@
 import { Memory } from "./Memory.js";
 import { Display } from "./Display.js";
+import { Speaker } from "./Speaker.js";
 
 export class Processor {
 	constructor(
 		private readonly memory: Memory,
 		private readonly display: Display,
+		private readonly speaker: Speaker,
 		private readonly onDebugEmit?: (data: Record<string, string>) => void,
 	) {}
 
@@ -21,11 +23,8 @@ export class Processor {
 		}
 		const registerSoundValue = memory.getRegisterSound();
 		if (registerSoundValue > 0) {
-			console.log("Speaker!");
+			this.speaker.beep();
 			memory.setRegisterSound(registerSoundValue - 1);
-			if (registerSoundValue === 1) {
-				console.log("Speaker stop.");
-			}
 		}
 
 		const {

@@ -2,6 +2,7 @@ import { Clock, Subscription } from "./Clock.js";
 import { Display } from "./Display.js";
 import { Memory } from "./Memory.js";
 import { Processor } from "./Processor.js";
+import { Speaker } from "./Speaker.js";
 
 const DISPLAY_WIDTH = 64;
 const DISPLAY_HEIGHT = 32;
@@ -22,12 +23,13 @@ async function main() {
 	const rom = new Uint8Array(await responseBody.arrayBuffer());
 	const memory = new Memory(rom);
 	const display = new Display(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+	const speaker = new Speaker();
 	const renderDebugInfo = (data: Record<string, string>) => {
 		document.querySelector("dl")!.innerHTML = Object.entries(data)
 			.map(([key, value]) => `<dt>${key}</dt><dd>${value}</dd>`)
 			.join("\n");
 	};
-	const processor = new Processor(memory, display, renderDebugInfo);
+	const processor = new Processor(memory, display, speaker, renderDebugInfo);
 
 	const clock = new Clock(TICK_INTERVAL_MS);
 	let clockSubscription: Subscription | null = null;
