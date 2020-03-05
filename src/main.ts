@@ -1,6 +1,6 @@
 import { Clock } from "./Clock.js";
-import { loadHexSprites } from "./loadHexSprites.js";
 import { Display } from "./Display.js";
+import { Memory } from "./Memory.js";
 
 const enum Constants {
 	MemoryLength = 0x1000,
@@ -8,7 +8,7 @@ const enum Constants {
 	RegisterCount = 0x10,
 	Register16BitCount = 0x01,
 	DelayTimersCount = 0x2,
-	TickRate = 1000 / 60,
+	TickRate = 10,
 	DisplayWidth = 64,
 	DisplayHeight = 32,
 }
@@ -24,45 +24,39 @@ async function main() {
 	const response = await fetch("./roms/Pong (1 player).ch8");
 	const responseBody = await response.blob();
 	const rom = new Uint8Array(await responseBody.arrayBuffer());
-
-	const memory = new Uint8Array(Constants.MemoryLength);
-	memory.set(rom, Constants.EntryPoint);
-	loadHexSprites(memory);
-
-	const registersV = new Uint8Array(Constants.RegisterCount);
-	const registersI = new Uint16Array(Constants.Register16BitCount);
-	const registersDelayTimers = new Uint8Array(Constants.DelayTimersCount);
-	const registersSoundTimers = new Uint8Array(1);
-	let programCounter: number = Constants.EntryPoint;
-	let stack: number[] = [];
+	const memory = new Memory(rom);
 	const display = new Display(
 		Constants.DisplayWidth,
 		Constants.DisplayHeight,
 	);
 
 	const clock = new Clock(Constants.TickRate, () => {
-		if (registersDelayTimers[0] > 0) {
-			registersDelayTimers[0]--;
+		const registerDelayValue = memory.getRegisterDelay();
+		if (registerDelayValue > 0) {
+			memory.setRegisterDelay(registerDelayValue - 1);
 		}
-		if (registersSoundTimers[0] > 0) {
+		const registerSoundValue = memory.getRegisterSound();
+		if (registerSoundValue > 0) {
 			console.log("Speaker!");
-			registersSoundTimers[0]--;
-			if (registersSoundTimers[0] === 0) {
+			memory.setRegisterSound(registerSoundValue - 1);
+			if (registerSoundValue === 1) {
 				console.log("Speaker stop.");
 			}
 		}
 
-		const instructionByte0 = memory[programCounter];
-		const instructionByte1 = memory[programCounter + 1];
-		const nibble0 = (instructionByte0 & 0xf0) >>> 4;
-		const nibble1 = instructionByte0 & 0x0f;
-		const nibble2 = (instructionByte1 & 0xf0) >>> 4;
-		const nibble3 = instructionByte1 & 0x0f;
-		const address = (nibble1 << 8) | instructionByte1;
+		const {
+			byte0,
+			byte1,
+			nibble0,
+			nibble1,
+			nibble2,
+			nibble3,
+			address,
+		} = memory.getInstruction();
 		console.table({
-			programCounter,
-			mem0: memory[programCounter].toString(16),
-			mem1: memory[programCounter + 1].toString(16),
+			programCounter: memory.getRegisterProgramCounter().toString(16),
+			byte0: byte0.toString(16),
+			byte1: byte1.toString(16),
 			nibble0: nibble0.toString(16),
 			nibble1: nibble1.toString(16),
 			nibble2: nibble2.toString(16),
@@ -72,15 +66,9 @@ async function main() {
 
 		switch (nibble0) {
 			case 0x0: {
-				switch (instructionByte1) {
+				switch (byte1) {
 					case 0xee: {
-						const poppedAddress = stack.pop();
-						if (poppedAddress === undefined) {
-							clock.stop();
-							console.error("Stack empty.");
-							break;
-						}
-						programCounter = poppedAddress;
+						memory.setRegisterProgramCounter(memory.stackPop());
 						break;
 					}
 
@@ -96,68 +84,81 @@ async function main() {
 			}
 
 			case 0x1: {
-				programCounter = address - 2;
+				memory.setRegisterProgramCounter(address - 2);
 				break;
 			}
 
 			case 0x2: {
-				stack.push(programCounter);
-				programCounter = address - 2;
+				memory.stackPush();
+				memory.setRegisterProgramCounter(address - 2);
 				break;
 			}
 
 			case 0x3: {
-				if (registersV[nibble1] === instructionByte1) {
-					programCounter += 2;
+				if (memory.getRegisterV(nibble1) === byte1) {
+					memory.incrementRegisterProgramCounter(2);
 				}
 				break;
 			}
 
 			case 0x4: {
-				if (registersV[nibble1] !== instructionByte1) {
-					programCounter += 2;
+				if (memory.getRegisterV(nibble1) !== byte1) {
+					memory.incrementRegisterProgramCounter(2);
 				}
 				break;
 			}
 
 			// 6xkk - LD Vx, byte
 			case 0x6: {
-				registersV[nibble1] = instructionByte1;
+				memory.setRegisterV(nibble1, byte1);
 				break;
 			}
 
 			case 0x7: {
-				registersV[nibble1] += instructionByte1;
+				memory.incrementRegisterV(nibble1, byte1);
 				break;
 			}
 
 			case 0x8: {
 				switch (nibble3) {
 					case 0x0: {
-						registersV[nibble1] = registersV[nibble2];
+						memory.setRegisterV(
+							nibble1,
+							memory.getRegisterV(nibble2),
+						);
 						break;
 					}
 
 					case 0x2: {
-						registersV[nibble1] =
-							registersV[nibble1] & registersV[nibble2];
+						memory.setRegisterV(
+							nibble1,
+							memory.getRegisterV(nibble1) &
+								memory.getRegisterV(nibble2),
+						);
 						break;
 					}
 
 					case 0x4: {
 						const result =
-							registersV[nibble1] + registersV[nibble2];
-						registersV[nibble1] = result;
-						registersV[0xf] = result > 255 ? 1 : 0;
+							memory.getRegisterV(nibble1) +
+							memory.getRegisterV(nibble2);
+						memory.setRegisterV(nibble1, result);
+						memory.setRegisterV(0xf, result > 255 ? 1 : 0);
 						break;
 					}
 
 					case 0x5: {
 						const result =
-							registersV[nibble1] - registersV[nibble2];
-						registersV[0xf] =
-							registersV[nibble1] > registersV[nibble2] ? 1 : 0;
-						registersV[nibble1] = result;
+							memory.getRegisterV(nibble1) -
+							memory.getRegisterV(nibble2);
+						memory.setRegisterV(
+							0xf,
+							memory.getRegisterV(nibble1) >
+								memory.getRegisterV(nibble2)
+								? 1
+								: 0,
+						);
+						memory.setRegisterV(nibble1, result);
 						break;
 					}
 
@@ -174,7 +175,7 @@ async function main() {
 
 			// Annn - LD I, addr
 			case 0xa: {
-				registersI[0] = address;
+				memory.setRegisterI(address);
 				break;
 			}
 
@@ -183,14 +184,14 @@ async function main() {
 				const randomNumber = Math.floor(
 					Math.random() * Math.floor(256),
 				);
-				registersV[nibble1] = randomNumber & instructionByte1;
+				memory.setRegisterV(nibble1, randomNumber & byte1);
 				break;
 			}
 
 			// Dxyn - DRW Vx, Vy, nibble
 			case 0xd: {
-				const xPosition = registersV[nibble1];
-				const yPosition = registersV[nibble2];
+				const xPosition = memory.getRegisterV(nibble1);
+				const yPosition = memory.getRegisterV(nibble2);
 				const spriteByteCount = nibble3;
 				let hasCollision = false;
 				for (let yOffset = 0; yOffset < spriteByteCount; yOffset += 1) {
@@ -198,7 +199,9 @@ async function main() {
 					if (y >= Constants.DisplayHeight) {
 						y %= Constants.DisplayHeight;
 					}
-					const spriteByte = memory[registersI[0] + yOffset];
+					const spriteByte = memory.getMemoryByte(
+						memory.getRegisterI() + yOffset,
+					);
 					for (let xOffset = 0; xOffset < 8; xOffset += 1) {
 						let x = xPosition + xOffset;
 						if (x >= Constants.DisplayWidth) {
@@ -217,15 +220,15 @@ async function main() {
 						display.set(pixelOffset, pixel ^ originalPixel);
 					}
 				}
-				registersV[0xf] = hasCollision ? 1 : 0;
+				memory.setRegisterV(0xf, hasCollision ? 1 : 0);
 				break;
 			}
 
 			case 0xe: {
-				switch (instructionByte1) {
+				switch (byte1) {
 					case 0xa1: {
 						// TODO: Implement keyboard.
-						programCounter += 2;
+						memory.incrementRegisterProgramCounter(2);
 						break;
 					}
 
@@ -241,34 +244,42 @@ async function main() {
 			}
 
 			case 0xf: {
-				switch (instructionByte1) {
+				switch (byte1) {
 					case 0x07: {
-						registersV[nibble1] = registersDelayTimers[0];
+						memory.setRegisterV(nibble1, memory.getRegisterDelay());
 						break;
 					}
 
 					case 0x15: {
-						registersDelayTimers[0] = registersV[nibble1];
+						memory.setRegisterDelay(memory.getRegisterV(nibble1));
 						break;
 					}
 
 					case 0x18: {
-						registersSoundTimers[0] = registersV[nibble1];
+						memory.setRegisterSound(memory.getRegisterV(nibble1));
 						break;
 					}
 
 					case 0x29: {
-						registersI[0] = nibble1 * 5;
+						memory.setRegisterI(
+							nibble1 * 5 + memory.getHexSpritesOffset(),
+						);
 						break;
 					}
 
 					// Fx33 - LD B, Vx
 					case 0x33: {
-						let value = registersV[nibble1];
+						let value = memory.getRegisterV(nibble1);
 						for (let i = 2; i >= 0; i -= 1) {
-							memory[registersI[0] + i] = value % 10;
+							const memoryOffset = memory.getRegisterI() + 1;
+							memory.setMemoryByte(memoryOffset, value % 10);
 							value = (value / 10) | 0;
-							memory[registersI[0] + i] += value % 10 << 4;
+							memory.setMemoryByte(
+								memoryOffset,
+								(memory.getMemoryByte(memoryOffset) +
+									(value % 10)) <<
+									4,
+							);
 							value = (value / 10) | 0;
 						}
 						break;
@@ -276,8 +287,13 @@ async function main() {
 
 					// Fx65 - LD Vx, [I]
 					case 0x65: {
+						const memoryLocation = memory.getRegisterI();
 						for (let i = 0; i <= nibble1; i += 1) {
-							registersV[0] = memory[registersI[0] + i];
+							const memoryOffset = memoryLocation + i;
+							memory.setRegisterV(
+								i,
+								memory.getMemoryByte(memoryOffset),
+							);
 						}
 						break;
 					}
@@ -299,7 +315,7 @@ async function main() {
 			}
 		}
 
-		programCounter += 2;
+		memory.incrementRegisterProgramCounter(2);
 	});
 	clock.start();
 }
