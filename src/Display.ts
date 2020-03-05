@@ -9,6 +9,7 @@ export class Display {
 
 		svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
 		svg.innerHTML = "";
+
 		const rects: SVGRectElement[] = [];
 		for (let y = 0; y < height; y += 1) {
 			for (let x = 0; x < width; x += 1) {
@@ -25,6 +26,19 @@ export class Display {
 				svg.appendChild(rect);
 			}
 		}
+
+		const borderRect = document.createElementNS(
+			"http://www.w3.org/2000/svg",
+			"rect",
+		);
+		borderRect.setAttribute("x", "0");
+		borderRect.setAttribute("y", "0");
+		borderRect.setAttribute("width", width.toString());
+		borderRect.setAttribute("height", height.toString());
+		borderRect.setAttribute("fill", "transparent");
+		borderRect.setAttribute("stroke", "#eee");
+		borderRect.setAttribute("stroke-width", ".2");
+		svg.appendChild(borderRect);
 
 		this.rects = rects;
 	}
