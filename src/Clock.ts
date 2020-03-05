@@ -1,40 +1,69 @@
+type Subscriber = {
+	next: () => void;
+	error: (error: Error) => void;
+};
+
+export type Subscription = {
+	unsubscribe: () => void;
+};
+
 export class Clock {
-	private running = false;
+	private subscribers: Subscriber[] = [];
+	private expected: number = 0;
 
-	constructor(
-		readonly interval: number,
-		private readonly tickFunction: () => void,
-	) {}
+	constructor(private readonly interval: number) {}
 
-	private wait(waitTime: number) {
-		return new Promise((resolve) => setTimeout(resolve, waitTime));
+	private start() {
+		this.expected = Date.now() + this.interval;
+		setTimeout(this.step.bind(this), this.interval);
 	}
 
-	private async *createTicker() {
-		let expected: number;
-		let drift = 0;
+	private step() {
+		const drift = Date.now() - this.expected;
 
-		while (this.running) {
-			expected = Date.now() + this.interval;
-			await this.wait(Math.max(0, this.interval - drift));
-
-			drift = Date.now() - expected;
-			yield;
+		// There's been a significant delay between steps. Reset the timestamp
+		// instead of attempting to catch up.
+		if (drift > this.interval) {
+			this.expected += drift;
 		}
-	}
 
-	start() {
-		this.running = true;
-		const ticker = this.createTicker();
+		if (this.subscribers.length === 0) {
+			return;
+		}
 
-		(async () => {
-			for await (const _ of ticker) {
-				this.tickFunction();
+		let error: Error | null = null;
+		for (const subscriber of this.subscribers) {
+			try {
+				subscriber.next();
+			} catch (e) {
+				error = e;
+				break;
 			}
-		})();
+		}
+		if (error) {
+			for (const subscriber of this.subscribers) {
+				subscriber.error(error);
+			}
+			this.subscribers = [];
+			return;
+		}
+
+		this.expected += this.interval;
+		setTimeout(this.step.bind(this), Math.max(0, this.interval - drift));
 	}
 
-	stop() {
-		this.running = false;
+	subscribe(subscriber: Subscriber): Subscription {
+		this.subscribers.push(subscriber);
+		const subscription: Subscription = {
+			unsubscribe: () => {
+				this.subscribers = this.subscribers.filter(
+					(s) => s !== subscriber,
+				);
+			},
+		};
+		if (this.subscribers.length === 1) {
+			this.start();
+		}
+		return subscription;
 	}
 }

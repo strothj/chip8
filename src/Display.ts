@@ -1,7 +1,7 @@
 export class Display {
 	private readonly rects: SVGRectElement[];
 
-	constructor(width: number, height: number) {
+	constructor(readonly width: number, readonly height: number) {
 		const svg = document.querySelector("svg");
 		if (!svg) {
 			throw new Error("Unable to acquire svg element.");
