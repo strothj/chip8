@@ -5,18 +5,10 @@
   "author": "strothj <jason@jasons.io>",
   "license": "MIT",
   "scripts": {
-    "start": "yarn clean && tsc -b --watch",
-    "build": "yarn clean && tsc -b",
-    "clean": "rimraf dist/js"
+    "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "cz-conventional-changelog": "3.1.0",
-    "rimraf": "^3.0.2",
+    "preact": "^10.3.3",
     "typescript": "^3.8.3"
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
   }
 }

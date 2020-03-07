@@ -1,16 +1,13 @@
 {
   "compilerOptions": {
-    "incremental": true,
+    "noEmit": true,
     "target": "es2020",
     "module": "es2020",
     "lib": ["es2020", "dom", "dom.iterable"],
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "outDir": "dist/js",
-    "rootDir": "src",
-    "composite": true,
-    "tsBuildInfoFile": "dist/js/tsconfig.tsbuildinfo",
+    "jsx": "react",
+    "jsxFactory": "h",
+    "allowJs": true,
+    "checkJs": true,
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -18,7 +15,8 @@
     "noFallthroughCasesInSwitch": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true
   },
   "include": ["src"],
   "exclude": ["node_modules"]

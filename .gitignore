@@ -1,4 +1,3 @@
 .yarn/*
 !.yarn/releases/
-dist/js/
 node_modules/
