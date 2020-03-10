@@ -1,6 +1,4 @@
 .next/
-.yarn/*
-!.yarn/plugins/
-!.yarn/releases/
+.yarn/build-state.yml
 node_modules/
 out/
