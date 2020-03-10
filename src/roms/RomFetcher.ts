@@ -25,21 +25,19 @@ export type RomInfo = {
   description: string;
 };
 
-export abstract class RomListsFetcher {
+export abstract class RomFetcher {
   abstract fetchRomLists(): Promise<RomList[]>;
   abstract fetchRomInfo(slug: string): Promise<RomInfo>;
 }
 
-export function createRomListsFetcher() {
-  let RomListsFetcherImpl: new () => RomListsFetcher;
+export async function createRomFetcher() {
+  let RomFetcherImpl: new () => RomFetcher;
 
   if (process.browser) {
-    RomListsFetcherImpl = (require("./RomListsFetcherBrowser") as typeof import("./RomListsFetcherBrowser"))
-      .RomListsFetcherBrowser;
+    RomFetcherImpl = (await import("./RomFetcherBrowser")).RomFetcherBrowser;
   } else {
-    RomListsFetcherImpl = (require("./RomListsFetcherServer") as typeof import("./RomListsFetcherServer"))
-      .RomListsFetcherServer;
+    RomFetcherImpl = (await import("./RomFetcherServer")).RomFetcherServer;
   }
 
-  return new RomListsFetcherImpl();
+  return new RomFetcherImpl();
 }

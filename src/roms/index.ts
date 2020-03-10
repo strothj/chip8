@@ -1,3 +1,3 @@
-export { createRomListsFetcher } from "./RomListsFetcher";
-export type RomList = import("./RomListsFetcher").RomList;
-export type RomInfo = import("./RomListsFetcher").RomInfo;
+export { createRomFetcher } from "./RomFetcher";
+export type RomList = import("./RomFetcher").RomList;
+export type RomInfo = import("./RomFetcher").RomInfo;

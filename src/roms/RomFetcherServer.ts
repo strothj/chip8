@@ -2,13 +2,13 @@ import fetch from "isomorphic-unfetch";
 import slug from "slug";
 import { createCache } from "./Cache";
 
-type RomListsFetcher = import("./RomListsFetcher").RomListsFetcher;
-type RomList = import("./RomListsFetcher").RomList;
-type RomCategory = import("./RomListsFetcher").RomCategory;
-type RomMetaDataPartial = import("./RomListsFetcher").RomMetaDataPartial;
-type RomMetaData = import("./RomListsFetcher").RomMetaData;
-type Rom = import("./RomListsFetcher").Rom;
-type RomInfo = import("./RomListsFetcher").RomInfo;
+type RomFetcher = import("./RomFetcher").RomFetcher;
+type RomList = import("./RomFetcher").RomList;
+type RomCategory = import("./RomFetcher").RomCategory;
+type RomMetaDataPartial = import("./RomFetcher").RomMetaDataPartial;
+type RomMetaData = import("./RomFetcher").RomMetaData;
+type Rom = import("./RomFetcher").Rom;
+type RomInfo = import("./RomFetcher").RomInfo;
 
 type GithubFile = {
   download_url: string | null;
@@ -25,8 +25,6 @@ const categoryTitleMap: Record<RomCategory, string> = {
   demo: "Demos",
   game: "Games",
 };
-
-const cache = createCache();
 
 function computeRomSlug(type: RomCategory, title: string) {
   return slug(`${type} ${title}`).toLowerCase();
@@ -75,8 +73,11 @@ function parseRomsFromGithubFiles(type: RomCategory, files: GithubFile[]) {
   return roms;
 }
 
-export class RomListsFetcherServer implements RomListsFetcher {
+export class RomFetcherServer implements RomFetcher {
+  private readonly cacheInitialization = createCache();
+
   async fetchRomLists() {
+    const cache = await this.cacheInitialization;
     const cacheKey = "rom-lists";
     const cachedRomLists = cache.read<RomList[]>(cacheKey);
     if (cachedRomLists) {
@@ -120,6 +121,7 @@ export class RomListsFetcherServer implements RomListsFetcher {
   }
 
   async fetchRomInfo(slug: string): Promise<RomInfo> {
+    const cache = await this.cacheInitialization;
     const romLists = await this.fetchRomLists();
     const rom = romLists
       .map((romList) => romList.roms)

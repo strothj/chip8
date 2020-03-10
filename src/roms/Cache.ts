@@ -3,7 +3,7 @@ export abstract class Cache {
   abstract write<T extends object>(name: string, data: T): void;
 }
 
-export function createCache() {
+export async function createCache() {
   let CacheImpl: new () => Cache;
 
   if (process.browser) {

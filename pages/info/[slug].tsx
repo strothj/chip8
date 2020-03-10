@@ -1,7 +1,7 @@
 import Container from "@material-ui/core/Container";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import React from "react";
-import { createRomListsFetcher, Layout, RomInfo } from "../../src";
+import { createRomFetcher, Layout, RomInfo } from "../../src";
 
 type RomInfoPageParamsObject = {
   params: {
@@ -40,14 +40,14 @@ export default function RomInfoPage({ title, description }: RomInfoPageProps) {
 export async function unstable_getStaticProps({
   params: { slug },
 }: RomInfoPageParamsObject): Promise<{ props: RomInfoPageProps }> {
-  const romListsFetcher = createRomListsFetcher();
-  const romInfo = await romListsFetcher.fetchRomInfo(slug);
+  const romFetcher = await createRomFetcher();
+  const romInfo = await romFetcher.fetchRomInfo(slug);
   return { props: romInfo };
 }
 
 export async function unstable_getStaticPaths() {
-  const romListsFetcher = createRomListsFetcher();
-  const romLists = await romListsFetcher.fetchRomLists();
+  const romFetcher = await createRomFetcher();
+  const romLists = await romFetcher.fetchRomLists();
 
   return {
     paths: romLists

@@ -10,7 +10,7 @@ import InfoIcon from "@material-ui/icons/Info";
 import clsx from "clsx";
 import Link from "next/link";
 import React, { Fragment, useState } from "react";
-import { createRomListsFetcher, Layout, RomList } from "../src";
+import { createRomFetcher, Layout, RomList } from "../src";
 
 type RomSelectPageProps = {
   romLists: RomList[];
@@ -95,8 +95,8 @@ export default function RomSelectPage({ romLists }: RomSelectPageProps) {
 }
 
 export async function unstable_getStaticProps() {
-  const romListFetcher = createRomListsFetcher();
-  const romLists = await romListFetcher.fetchRomLists();
+  const romFetcher = await createRomFetcher();
+  const romLists = await romFetcher.fetchRomLists();
   const props: RomSelectPageProps = { romLists };
   return { props };
 }
