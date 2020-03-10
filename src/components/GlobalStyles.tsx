@@ -1,14 +1,10 @@
-// import React from "react";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles(() =>
   createStyles({
     "@global": {
-      "html, body": {
+      "html, body, #__next": {
         height: "100%",
-      },
-      "#__next": {
-        minHeight: "100%",
       },
     },
   }),

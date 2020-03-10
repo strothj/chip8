@@ -1,6 +1,5 @@
 .next/
 .yarn/*
 !.yarn/releases/
-cache/
 node_modules/
 out/

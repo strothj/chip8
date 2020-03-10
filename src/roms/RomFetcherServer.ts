@@ -9,12 +9,17 @@ type RomMetaDataPartial = import("./RomFetcher").RomMetaDataPartial;
 type RomMetaData = import("./RomFetcher").RomMetaData;
 type Rom = import("./RomFetcher").Rom;
 type RomInfo = import("./RomFetcher").RomInfo;
+type RomBinary = import("./RomFetcher").RomBinary;
 
 type GithubFile = {
   download_url: string | null;
 };
 
 type CachedRomInfo = Pick<RomInfo, "description">;
+
+type CachedRomBinary = {
+  rom: number[];
+};
 
 const romCategoryContentsUrlMap: Record<RomCategory, string> = {
   demo: "https://api.github.com/repos/dmatlack/chip8/contents/roms/demos",
@@ -76,6 +81,15 @@ function parseRomsFromGithubFiles(type: RomCategory, files: GithubFile[]) {
 export class RomFetcherServer implements RomFetcher {
   private readonly cacheInitialization = createCache();
 
+  private assertResponseOk(response: Response) {
+    if (response.ok) {
+      return;
+    }
+    throw new Error(
+      `Request failed: ${response.status}: ${response.statusText}`,
+    );
+  }
+
   async fetchRomLists() {
     const cache = await this.cacheInitialization;
     const cacheKey = "rom-lists";
@@ -91,11 +105,7 @@ export class RomFetcherServer implements RomFetcher {
           const response = await fetch(url, {
             headers: { Accept: "application/vnd.github.v3+json" },
           });
-          if (!response.ok) {
-            throw new Error(
-              `Failed to retrieve file list of rom category: ${type}: ${response.status}: ${response.statusText}`,
-            );
-          }
+          this.assertResponseOk(response);
           return { type, response };
         },
       ),
@@ -120,8 +130,7 @@ export class RomFetcherServer implements RomFetcher {
     return romLists;
   }
 
-  async fetchRomInfo(slug: string): Promise<RomInfo> {
-    const cache = await this.cacheInitialization;
+  private async getRomBySlug(slug: string) {
     const romLists = await this.fetchRomLists();
     const rom = romLists
       .map((romList) => romList.roms)
@@ -130,6 +139,12 @@ export class RomFetcherServer implements RomFetcher {
     if (!rom) {
       throw new Error(`Failed to locate rom corresponding to slug: ${slug}`);
     }
+    return rom;
+  }
+
+  async fetchRomInfo(slug: string): Promise<RomInfo> {
+    const cache = await this.cacheInitialization;
+    const rom = await this.getRomBySlug(slug);
     if (!rom.downloadInfoUrl) {
       throw new Error(`Rom does not contain an info download url: ${slug}`);
     }
@@ -142,9 +157,27 @@ export class RomFetcherServer implements RomFetcher {
     }
 
     const response = await fetch(rom.downloadInfoUrl);
+    this.assertResponseOk(response);
     cachedRomInfo = { description: await response.text() };
     cache.write(cacheKey, cachedRomInfo);
 
     return { ...cachedRomInfo, title };
+  }
+
+  async fetchRomBinary(slug: string): Promise<RomBinary> {
+    const cache = await this.cacheInitialization;
+    const rom = await this.getRomBySlug(slug);
+    const title = rom.title;
+    const cacheKey = `rom-binary-${slug}`;
+    let cachedRomBinary = cache.read<CachedRomBinary>(cacheKey);
+    if (cachedRomBinary) {
+      return { ...cachedRomBinary, title };
+    }
+
+    const response = await fetch(rom.downloadRomUrl);
+    this.assertResponseOk(response);
+    const romBytes = new Uint8Array(await response.arrayBuffer());
+    cache.write<CachedRomBinary>(cacheKey, { rom: [...romBytes] });
+    return { title, rom: [...romBytes] };
   }
 }

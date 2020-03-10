@@ -1,0 +1,3 @@
+{
+  "description": "Maze, by David Winter\r\n\r\nDrawing a random maze like this one consists in drawing random diagonal\r\nlines. There are two possibilities: right-to-left line, and left-to-right\r\nline. Each line is composed of a 4*4 bitmap. As the lines must form non-\r\ncircular angles, the two bitmaps won't be '/' and '\\'. The first one\r\n(right line) will be a little bit modified. See at the end of this source.\r\n\r\nThe maze is composed of 16 lines (as the bitmaps are 4 pixels high), each\r\nline consists of 32 bitmaps.\r\nBitmaps are drawn in random mode. We choose a random value (0 or 1).\r\nIf it is 1, we draw a left line bitmap. If it is 0, we draw a right one.\r\n"
+}

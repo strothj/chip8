@@ -25,9 +25,15 @@ export type RomInfo = {
   description: string;
 };
 
+export type RomBinary = {
+  title: string;
+  rom: number[];
+};
+
 export abstract class RomFetcher {
   abstract fetchRomLists(): Promise<RomList[]>;
   abstract fetchRomInfo(slug: string): Promise<RomInfo>;
+  abstract fetchRomBinary(slug: string): Promise<RomBinary>;
 }
 
 export async function createRomFetcher() {

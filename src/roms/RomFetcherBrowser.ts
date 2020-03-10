@@ -8,4 +8,8 @@ export class RomFetcherBrowser implements RomFetcher {
   fetchRomInfo() {
     return Promise.reject(new Error());
   }
+
+  fetchRomBinary() {
+    return Promise.reject(new Error());
+  }
 }
