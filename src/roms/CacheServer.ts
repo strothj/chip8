@@ -7,11 +7,17 @@ export class CacheServer implements Cache {
   private readonly cacheDirectoryPath: string;
 
   constructor() {
-    const cacheDirectoryPath = path.join(process.cwd(), "cache");
-    if (!fs.existsSync(cacheDirectoryPath)) {
-      fs.mkdirSync(cacheDirectoryPath);
+    let previousDirectoryPath = "";
+    let directoryPath = __dirname;
+    while (previousDirectoryPath !== directoryPath) {
+      if (fs.existsSync(path.join(directoryPath, "package.json"))) {
+        this.cacheDirectoryPath = path.join(directoryPath, "cache");
+        return;
+      }
+      previousDirectoryPath = directoryPath;
+      directoryPath = path.resolve(directoryPath, "..");
     }
-    this.cacheDirectoryPath = cacheDirectoryPath;
+    throw new Error("Unable to resolve cache directory.");
   }
 
   private getFilePath(name: string) {
