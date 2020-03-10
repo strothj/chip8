@@ -116,7 +116,6 @@ export async function getStaticPaths() {
     paths: romLists
       .map((romList) => romList.roms)
       .flat(1)
-      .filter((rom) => !!rom.downloadInfoUrl)
       .map((rom): PlayerPageParamsObject => ({ params: { slug: rom.slug } })),
     fallback: false,
   };
