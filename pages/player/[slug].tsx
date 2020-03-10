@@ -41,7 +41,10 @@ export default function PlayerPage({ title, rom: romProp }: PlayerPageProps) {
       {},
       {
         get: (_target, property) => {
-          return displayRef.current![property as keyof DisplayRef];
+          if (!displayRef.current) {
+            throw new Error();
+          }
+          return displayRef.current[property as keyof DisplayRef];
         },
       },
     ) as DisplayRef;

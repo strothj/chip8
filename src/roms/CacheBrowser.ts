@@ -5,5 +5,6 @@ export class CacheBrowser implements Cache {
     return null;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   write() {}
 }

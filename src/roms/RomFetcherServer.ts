@@ -169,7 +169,7 @@ export class RomFetcherServer implements RomFetcher {
     const rom = await this.getRomBySlug(slug);
     const title = rom.title;
     const cacheKey = `rom-binary-${slug}`;
-    let cachedRomBinary = cache.read<CachedRomBinary>(cacheKey);
+    const cachedRomBinary = cache.read<CachedRomBinary>(cacheKey);
     if (cachedRomBinary) {
       return { ...cachedRomBinary, title };
     }

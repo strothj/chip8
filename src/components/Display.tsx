@@ -112,3 +112,4 @@ export const Display = forwardRef<DisplayRef, DisplayProps>(
     );
   },
 );
+Display.displayName = "Display";

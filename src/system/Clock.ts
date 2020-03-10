@@ -9,7 +9,7 @@ export type ClockSubscription = {
 
 export class Clock {
   private subscribers: Subscriber[] = [];
-  private expected: number = 0;
+  private expected = 0;
 
   constructor(private readonly interval: number) {}
 
