@@ -1162,16 +1162,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime-corejs2@npm:7.7.2":
-  version: 7.7.2
-  resolution: "@babel/runtime-corejs2@npm:7.7.2"
-  dependencies:
-    core-js: ^2.6.5
-    regenerator-runtime: ^0.13.2
-  checksum: 2/b52b4fe143de7c99f3c635c0d113eb0664f5aa8419c5760668c5140cd42156fdac04f050597fb834ccba80a977ae36c4040684a5295589f0723699c23a139a85
-  languageName: node
-  linkType: hard
-
 "@babel/runtime@npm:7.7.2":
   version: 7.7.2
   resolution: "@babel/runtime@npm:7.7.2"
@@ -1215,6 +1205,17 @@ __metadata:
     globals: ^11.1.0
     lodash: ^4.17.13
   checksum: 2/6c562bcbf34ccaf4c054334a5a372d69a9c0c268da82ffcd89b4fd40833be15215e9d674f867d4b277073445cbcbe2fa4c13705c7e9b7689ab527df0a011c860
+  languageName: node
+  linkType: hard
+
+"@babel/types@npm:7.7.4":
+  version: 7.7.4
+  resolution: "@babel/types@npm:7.7.4"
+  dependencies:
+    esutils: ^2.0.2
+    lodash: ^4.17.13
+    to-fast-properties: ^2.0.0
+  checksum: 2/b4dfbf99e6c17a5e2ca87b6e1d904676451cee6205631701087150b0e7455891cc5da86c7668050a9bd7c4a80238e60dc4d12e1f1e48db0f721e71bd4d4739a9
   languageName: node
   linkType: hard
 
@@ -1362,10 +1363,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/polyfill-nomodule@npm:9.2.2":
-  version: 9.2.2
-  resolution: "@next/polyfill-nomodule@npm:9.2.2"
-  checksum: 2/f2dfb8006b4e80e4d284ce7447d3db644c35230a3b6aeca1df296c6ca6979858da29403d3863b4ec7614a7d94cf8b381420ca79e51f1c5ed25141edf16fc3e00
+"@next/polyfill-nomodule@npm:9.3.0":
+  version: 9.3.0
+  resolution: "@next/polyfill-nomodule@npm:9.3.0"
+  checksum: 2/1fb67adb36c2d080e4f3d68bf805a1e5d6817c3476ce0431526dd85d8ec3f42d98051fdc8f6303032f7fd4da9b90880a6d3f177879d7295d47ccc4eb025a1981
   languageName: node
   linkType: hard
 
@@ -1401,7 +1402,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:^16.9.23":
+"@types/react@npm:*, @types/react@npm:^16.9.24":
   version: 16.9.24
   resolution: "@types/react@npm:16.9.24"
   dependencies:
@@ -1683,16 +1684,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"amphtml-validator@npm:1.0.23":
-  version: 1.0.23
-  resolution: "amphtml-validator@npm:1.0.23"
+"amphtml-validator@npm:1.0.30":
+  version: 1.0.30
+  resolution: "amphtml-validator@npm:1.0.30"
   dependencies:
-    colors: 1.1.2
-    commander: 2.9.0
-    promise: 7.1.1
+    colors: 1.2.5
+    commander: 2.15.1
+    promise: 8.0.1
   bin:
     amphtml-validator: index.js
-  checksum: 2/5fedfb8b7afe8a9c0ea999ad6e51e8f53346b1eb0b55ee3a96b0e20344bfed57495ac9480d325a833ac31e1759303ff9bc864eff91f18625242bcb9f1f05dfda
+  checksum: 2/ea647d0902c0fe902591961d563106585f84d70ca7e149dc2746f7c971e4ed03a22161db5fdd2bf66941ae6f4ecdd56da7fa98ebea6ffbbcd893b9eac634a648
   languageName: node
   linkType: hard
 
@@ -2496,12 +2497,12 @@ __metadata:
     "@material-ui/core": ^4.9.5
     "@material-ui/icons": ^4.9.1
     "@types/node": ^13.9.0
-    "@types/react": ^16.9.23
+    "@types/react": ^16.9.24
     "@types/react-dom": ^16.9.5
     "@types/slug": ^0.9.1
     clsx: ^1.1.0
     isomorphic-unfetch: ^3.0.0
-    next: ^9.2.2
+    next: ^9.3.0
     react: ^16.13.0
     react-dom: ^16.13.0
     slug: ^2.1.1
@@ -2670,10 +2671,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"colors@npm:1.1.2":
-  version: 1.1.2
-  resolution: "colors@npm:1.1.2"
-  checksum: 2/4596bf253941069d70c39360c186cf81728ea8d671557aacf36c2c32b23ed0e1acd8537c351eb8626621b164596e869d572415cf0da6dc7df5017b6cb1e933c9
+"colors@npm:1.2.5":
+  version: 1.2.5
+  resolution: "colors@npm:1.2.5"
+  checksum: 2/c396fe2a268fd95f37de874a4eb0f542698a6fd775bcecffdb8aa01fe6c67b4aab81bd7a93ee2f7a248f29a161446c1719d4590aff5e26e7315c7b9d473a513d
   languageName: node
   linkType: hard
 
@@ -2686,12 +2687,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:2.9.0":
-  version: 2.9.0
-  resolution: "commander@npm:2.9.0"
-  dependencies:
-    graceful-readlink: ">= 1.0.0"
-  checksum: 2/9b1fe7000d68e718b0b97b9f09626645cf833a5d8e5f29d409e731892170db201b71af6e7ff307d4dc327cd3cf26eb335cecf867ef91a9df91e61923511d8ebd
+"commander@npm:2.15.1":
+  version: 2.15.1
+  resolution: "commander@npm:2.15.1"
+  checksum: 2/3f19d787955782177639ded2a86ae2e6cb6bc7d025b5a4991b6d6edcfe9bc513481bb05d1444650e264129c268f57b7b955cf557dc215faa879a4ece63a31b22
   languageName: node
   linkType: hard
 
@@ -2865,7 +2864,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:^2.4.0, core-js@npm:^2.6.5":
+"core-js@npm:^2.4.0":
   version: 2.6.11
   resolution: "core-js@npm:2.6.11"
   checksum: 2/39ad00b46deaecf344470ef940949b58c4b15e71608a98e8ac7429cd16e485b829f9720d44a44b5f4dee966ff04a18baf5283feb8aaba2cb59ce2c25fa72b88c
@@ -4050,13 +4049,6 @@ __metadata:
   version: 4.2.3
   resolution: "graceful-fs@npm:4.2.3"
   checksum: 2/67b7e3f6a687c91287f17a2adfcce462406e2aa16ea4440618e1daaecd579ae6362c0b13303f86c77c165ed8074fa8b0868bb0a73173fa3407c2b747e89353f9
-  languageName: node
-  linkType: hard
-
-"graceful-readlink@npm:>= 1.0.0":
-  version: 1.0.1
-  resolution: "graceful-readlink@npm:1.0.1"
-  checksum: 2/a0675771561e8f8401ce4f8feddcc5bc3fc7370d7cc95c9dab3fff8e4bb6f69316072267075e2e54ecaeb2ba72019cf9bd334732cdb1582b5a0642dd33b5b0e0
   languageName: node
   linkType: hard
 
@@ -5559,6 +5551,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"native-url@npm:0.2.6":
+  version: 0.2.6
+  resolution: "native-url@npm:0.2.6"
+  dependencies:
+    querystring: ^0.2.0
+  checksum: 2/064e580759f06060740636184ba8dbd8cf21a1237c769625591f8a0e956714ea27d58d601fe84c4b9600dfabc88edfb3bf51fc7a579764b5d60e0d9392aec9df
+  languageName: node
+  linkType: hard
+
 "needle@npm:^2.2.1":
   version: 2.4.0
   resolution: "needle@npm:2.4.0"
@@ -5593,9 +5594,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"next@npm:^9.2.2":
-  version: 9.2.2
-  resolution: "next@npm:9.2.2"
+"next@npm:^9.3.0":
+  version: 9.3.0
+  resolution: "next@npm:9.3.0"
   dependencies:
     "@ampproject/toolbox-optimizer": 2.0.0
     "@babel/core": 7.7.2
@@ -5612,9 +5613,9 @@ __metadata:
     "@babel/preset-react": 7.7.0
     "@babel/preset-typescript": 7.7.2
     "@babel/runtime": 7.7.2
-    "@babel/runtime-corejs2": 7.7.2
-    "@next/polyfill-nomodule": 9.2.2
-    amphtml-validator: 1.0.23
+    "@babel/types": 7.7.4
+    "@next/polyfill-nomodule": 9.3.0
+    amphtml-validator: 1.0.30
     async-retry: 1.2.3
     async-sema: 3.0.0
     autodll-webpack-plugin: 0.4.2
@@ -5655,12 +5656,12 @@ __metadata:
     lru-cache: 5.1.1
     mini-css-extract-plugin: 0.8.0
     mkdirp: 0.5.1
+    native-url: 0.2.6
     node-fetch: 2.6.0
-    object-assign: 4.1.1
     ora: 3.4.0
     path-to-regexp: 6.1.0
     pnp-webpack-plugin: 1.5.0
-    postcss-flexbugs-fixes: 4.1.0
+    postcss-flexbugs-fixes: 4.2.0
     postcss-loader: 3.0.0
     postcss-preset-env: 6.7.0
     prop-types: 15.7.2
@@ -5681,20 +5682,18 @@ __metadata:
     thread-loader: 2.1.3
     unfetch: 4.1.0
     url: 0.11.0
-    url-polyfill: 1.1.7
     use-subscription: 1.1.1
-    watchpack: 2.0.0-beta.5
-    webpack: 4.41.2
+    watchpack: 2.0.0-beta.13
+    webpack: 4.42.0
     webpack-dev-middleware: 3.7.0
     webpack-hot-middleware: 2.25.0
     webpack-sources: 1.4.3
-    whatwg-fetch: 3.0.0
   peerDependencies:
     react: ^16.6.0
     react-dom: ^16.6.0
   bin:
     next: dist/bin/next
-  checksum: 2/fccd81f9f2cf01e1824bbcbd030e87217069ba06d9ac36747fd7d66f564b1026ed4f547c4b1277c5c31ee82383125d2abcb4f1296856266359045cfbe15fbd7a
+  checksum: 2/4a5f4bc3236fe5edd31299ec1310a6488ffd6fecc06e39dce9d9a5a7d7e6d3eafbfdf8ef475c5ad089cacddd5b1d23cbd1603f40d8e729a5fed4b1023e20c061
   languageName: node
   linkType: hard
 
@@ -5912,7 +5911,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"object-assign@npm:4.1.1, object-assign@npm:^4.0.1, object-assign@npm:^4.1.0, object-assign@npm:^4.1.1":
+"object-assign@npm:^4.0.1, object-assign@npm:^4.1.0, object-assign@npm:^4.1.1":
   version: 4.1.1
   resolution: "object-assign@npm:4.1.1"
   checksum: 2/66cf021898fc1b13ea573ea8635fbd5a76533f50cecbc2fcd5eee1e8029af41bcebe7023788b6d0e06cbe4401ecea075d972f78ec74467cdc571a0f1a4d1a081
@@ -6479,12 +6478,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-flexbugs-fixes@npm:4.1.0":
-  version: 4.1.0
-  resolution: "postcss-flexbugs-fixes@npm:4.1.0"
+"postcss-flexbugs-fixes@npm:4.2.0":
+  version: 4.2.0
+  resolution: "postcss-flexbugs-fixes@npm:4.2.0"
   dependencies:
-    postcss: ^7.0.0
-  checksum: 2/ac9583f1d84aa7e59df0b3c0055c5952f00f91cf07be6c62bfbfb1c966c7061e2afa0535ac45dbe80df3b56ba6202579393427348c67d7c9dfa08867091b375e
+    postcss: ^7.0.26
+  checksum: 2/daa0c5505e232e2f31f00ce6395e96f43875c8ff28442b3b49a88b6a26d899b6df4f12f05822d8cc8a6ed929df7c494be8cf788b6cf841643976531e9d9957ba
   languageName: node
   linkType: hard
 
@@ -6854,12 +6853,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"promise@npm:7.1.1":
-  version: 7.1.1
-  resolution: "promise@npm:7.1.1"
+"promise@npm:8.0.1":
+  version: 8.0.1
+  resolution: "promise@npm:8.0.1"
   dependencies:
     asap: ~2.0.3
-  checksum: 2/881d17d0130123177b9b2140c5a4eb13453762aa4120359b24a8fceeace4b12e4574d6ade92998c16d3bc6c2c04cdb21583129c7c2e665e1e237ba119a96fe64
+  checksum: 2/1afb1a68fd0e5e6066cae812ec92b9b0eb130f8fad1e1525200185a51b038534ec6921e672c348d0df9fb60276281136955cbcfa1a2a8f9ad8430e70c7735680
   languageName: node
   linkType: hard
 
@@ -8059,7 +8058,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"terser-webpack-plugin@npm:^1.4.1":
+"terser-webpack-plugin@npm:^1.4.3":
   version: 1.4.3
   resolution: "terser-webpack-plugin@npm:1.4.3"
   dependencies:
@@ -8432,13 +8431,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"url-polyfill@npm:1.1.7":
-  version: 1.1.7
-  resolution: "url-polyfill@npm:1.1.7"
-  checksum: 2/75fe63929ef00e6d95763125222e429501de5e17f6ef8122a190f728589098ea2d0e8779366c6507e5db476cd239439eea7be7496a055423c8627dff565cbea7
-  languageName: node
-  linkType: hard
-
 "url@npm:0.11.0, url@npm:^0.11.0":
   version: 0.11.0
   resolution: "url@npm:0.11.0"
@@ -8534,14 +8526,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"watchpack@npm:2.0.0-beta.5":
-  version: 2.0.0-beta.5
-  resolution: "watchpack@npm:2.0.0-beta.5"
+"watchpack@npm:2.0.0-beta.13":
+  version: 2.0.0-beta.13
+  resolution: "watchpack@npm:2.0.0-beta.13"
   dependencies:
     glob-to-regexp: ^0.4.1
     graceful-fs: ^4.1.2
-    neo-async: ^2.5.0
-  checksum: 2/a6aac7cf2a473efef03b1bb60692e055371965b49fa8f61ac889eba68b4a3f9b17c498d015accbfd0253cf735e6fa801ed0b9c83280372456b3ae97def6a2a0f
+  checksum: 2/404d5c3c08a35c32a7a6374477848b9ab8721d3e76a180f4a9075138c2c8b1c09ef0e7b7e6e0276bcb0848e1fc33f04e6ee787129d39cd5e86262a38acc5bfc2
   languageName: node
   linkType: hard
 
@@ -8620,9 +8611,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack@npm:4.41.2":
-  version: 4.41.2
-  resolution: "webpack@npm:4.41.2"
+"webpack@npm:4.42.0":
+  version: 4.42.0
+  resolution: "webpack@npm:4.42.0"
   dependencies:
     "@webassemblyjs/ast": 1.8.5
     "@webassemblyjs/helper-module-context": 1.8.5
@@ -8644,12 +8635,12 @@ __metadata:
     node-libs-browser: ^2.2.1
     schema-utils: ^1.0.0
     tapable: ^1.1.3
-    terser-webpack-plugin: ^1.4.1
+    terser-webpack-plugin: ^1.4.3
     watchpack: ^1.6.0
     webpack-sources: ^1.4.1
   bin:
-    webpack: ./bin/webpack.js
-  checksum: 2/2c6840989d1d88ccf199041d089d780cc4d281cff9ac6663cacbbaebaafd563d9f7f7af0e935de1cfff339fef0b7222877a5bf08046db4c2c161c25844dfdbf4
+    webpack: bin/webpack.js
+  checksum: 2/fd8b6560ce9346f306e010cba47561ce234fd307984ef708a348fd3278d5da10c61ac927e817c53ecb09375b6436583644e0aade0bf581e7dde4b62aca90b22c
   languageName: node
   linkType: hard
 

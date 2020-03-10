@@ -100,7 +100,7 @@ export default function PlayerPage({ title, rom: romProp }: PlayerPageProps) {
   );
 }
 
-export async function unstable_getStaticProps({
+export async function getStaticProps({
   params: { slug },
 }: PlayerPageParamsObject): Promise<{ props: PlayerPageProps }> {
   const romFetcher = await createRomFetcher();
@@ -108,7 +108,7 @@ export async function unstable_getStaticProps({
   return { props: romBinary };
 }
 
-export async function unstable_getStaticPaths() {
+export async function getStaticPaths() {
   const romFetcher = await createRomFetcher();
   const romLists = await romFetcher.fetchRomLists();
 
@@ -118,5 +118,6 @@ export async function unstable_getStaticPaths() {
       .flat(1)
       .filter((rom) => !!rom.downloadInfoUrl)
       .map((rom): PlayerPageParamsObject => ({ params: { slug: rom.slug } })),
+    fallback: false,
   };
 }

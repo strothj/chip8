@@ -37,7 +37,7 @@ export default function RomInfoPage({ title, description }: RomInfoPageProps) {
   );
 }
 
-export async function unstable_getStaticProps({
+export async function getStaticProps({
   params: { slug },
 }: RomInfoPageParamsObject): Promise<{ props: RomInfoPageProps }> {
   const romFetcher = await createRomFetcher();
@@ -45,7 +45,7 @@ export async function unstable_getStaticProps({
   return { props: romInfo };
 }
 
-export async function unstable_getStaticPaths() {
+export async function getStaticPaths() {
   const romFetcher = await createRomFetcher();
   const romLists = await romFetcher.fetchRomLists();
 
@@ -55,5 +55,6 @@ export async function unstable_getStaticPaths() {
       .flat(1)
       .filter((rom) => !!rom.downloadInfoUrl)
       .map((rom): RomInfoPageParamsObject => ({ params: { slug: rom.slug } })),
+    fallback: false,
   };
 }

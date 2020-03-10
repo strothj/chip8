@@ -94,7 +94,7 @@ export default function RomSelectPage({ romLists }: RomSelectPageProps) {
   );
 }
 
-export async function unstable_getStaticProps() {
+export async function getStaticProps() {
   const romFetcher = await createRomFetcher();
   const romLists = await romFetcher.fetchRomLists();
   const props: RomSelectPageProps = { romLists };
