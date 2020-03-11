@@ -21,9 +21,9 @@ const useStyles = makeStyles((theme) =>
   createStyles({
     wrapper: {
       flex: 1,
-      position: "relative",
+      display: "flex",
+      flexDirection: "column",
       padding: theme.spacing(3),
-      maxHeight: "calc(100vh - 64px)",
     },
     display: {
       width: "100%",
