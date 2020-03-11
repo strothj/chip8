@@ -6,13 +6,7 @@ import React, {
   useMemo,
   useRef,
 } from "react";
-
-export type DisplayRef = {
-  get: (pixelOffset: number) => number;
-  set: (pixelOffset: number, value: number) => void;
-  width: number;
-  height: number;
-};
+import { DisplayRef } from "../system";
 
 type DisplayProps = {
   className?: string;
@@ -99,15 +93,6 @@ export const Display = forwardRef<DisplayRef, DisplayProps>(
         onClick={onClick}
       >
         {rects}
-        <rect
-          x="0"
-          y="0"
-          width={width.toString()}
-          height={height.toString()}
-          fill="transparent"
-          stroke="#eee"
-          strokeWidth="0.2"
-        />
       </svg>
     );
   },

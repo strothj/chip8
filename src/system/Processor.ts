@@ -1,4 +1,4 @@
-type Display = import("../components").DisplayRef;
+type DisplayRef = import("./DisplayRef").DisplayRef;
 type Instruction = import("./Memory").Instruction;
 type Memory = import("./Memory").Memory;
 type Speaker = import("./Speaker").Speaker;
@@ -9,7 +9,7 @@ export class Processor {
 
   constructor(
     private readonly memory: Memory,
-    private readonly display: Display,
+    private readonly display: DisplayRef,
     private readonly speaker: Speaker,
     private readonly keyboard: Keyboard,
     private readonly onDebugEmit?: (data: Record<string, string>) => void,

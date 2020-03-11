@@ -1,12 +1,12 @@
 import { createStyles, makeStyles } from "@material-ui/core/styles";
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef } from "react";
 import {
   createRomFetcher,
   Display,
   DisplayRef,
   Layout,
   RomBinary,
-  system,
+  useSystem,
 } from "../../src";
 
 type PlayerPageParamsObject = {
@@ -32,63 +32,16 @@ const useStyles = makeStyles((theme) =>
   }),
 );
 
-export default function PlayerPage({ title, rom: romProp }: PlayerPageProps) {
+export default function PlayerPage({ title, rom }: PlayerPageProps) {
   const classes = useStyles();
   const displayRef = useRef<DisplayRef>(null);
-
-  const [handleDisplayClick] = useState(() => {
-    const display = new Proxy(
-      {},
-      {
-        get: (_target, property) => {
-          if (!displayRef.current) {
-            throw new Error();
-          }
-          return displayRef.current[property as keyof DisplayRef];
-        },
-      },
-    ) as DisplayRef;
-
-    const TICK_INTERVAL_MS = 100;
-    const HERTZ = 500;
-    const CYCLES_PER_INTERVAL = HERTZ / (1000 / TICK_INTERVAL_MS);
-
-    const rom = new Uint8Array(romProp);
-    const memory = new system.Memory(rom);
-    const speaker = new system.Speaker();
-    const keyboard = new system.Keyboard();
-    const processor = new system.Processor(
-      memory,
-      display,
-      speaker,
-      keyboard,
-      // (data) => {
-      //   console.log(data);
-      // },
-    );
-    const clock = new system.Clock(TICK_INTERVAL_MS);
-    let clockSubscription: system.ClockSubscription | null = null;
-
-    return () => {
-      if (!clockSubscription) {
-        clockSubscription = clock.subscribe({
-          next: () => {
-            for (let i = 0; i < CYCLES_PER_INTERVAL; i += 1) {
-              processor.performCycle();
-            }
-          },
-          error: (error) => {
-            console.error(error);
-            clockSubscription = null;
-          },
-        });
-        return;
-      }
-
-      clockSubscription.unsubscribe();
-      clockSubscription = null;
-    };
-  });
+  const getDisplay = useCallback(() => {
+    if (!displayRef.current) {
+      throw new Error("Expected display reference to not be null.");
+    }
+    return displayRef.current;
+  }, []);
+  const { toggleRunning } = useSystem({ rom, getDisplay });
 
   return (
     <Layout title={title}>
@@ -96,7 +49,7 @@ export default function PlayerPage({ title, rom: romProp }: PlayerPageProps) {
         <Display
           ref={displayRef}
           className={classes.display}
-          onClick={handleDisplayClick}
+          onClick={toggleRunning}
         />
       </div>
     </Layout>
